@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit2, Trash2, Search, X, Upload } from 'lucide-react';
-import { useStore } from '@/context/StoreContext';
-import { Product } from '@/types/store';
+import { Plus, Edit2, Trash2, Search, X, Loader2, Image as ImageIcon } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,38 +22,94 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
-const emptyProduct: Omit<Product, 'id'> = {
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  original_price: number;
+  discount: number;
+  images: string[];
+  category: string;
+  fabric: string;
+  sizes: string[];
+  description: string;
+  care_instructions: string;
+  in_stock: boolean;
+  featured: boolean;
+  trending: boolean;
+}
+
+interface Category {
+  id: string;
+  name: string;
+}
+
+const emptyProduct = {
   name: '',
   price: 0,
-  originalPrice: 0,
+  original_price: 0,
   discount: 0,
   images: [''],
   category: '',
   fabric: '',
-  sizes: [],
+  sizes: [] as string[],
   description: '',
-  careInstructions: '',
-  inStock: true,
+  care_instructions: '',
+  in_stock: true,
   featured: false,
   trending: false,
 };
 
 const AdminProducts: React.FC = () => {
-  const { products, categories, addProduct, updateProduct, deleteProduct } = useStore();
   const { toast } = useToast();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [formData, setFormData] = useState<Omit<Product, 'id'>>(emptyProduct);
+  const [formData, setFormData] = useState(emptyProduct);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const fabrics = ['Cotton', 'Silk', 'Rayon', 'Chanderi Silk', 'Velvet', 'Linen', 'Georgette', 'Pure Cotton', 'Pure Silk'];
+  const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error: any) {
+      toast({ title: 'Error loading products', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase.from('categories').select('id, name');
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error: any) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const fabrics = ['Cotton', 'Silk', 'Rayon', 'Chanderi Silk', 'Velvet', 'Linen', 'Georgette'];
-  const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
 
   const openAddDialog = () => {
     setEditingProduct(null);
@@ -67,44 +122,86 @@ const AdminProducts: React.FC = () => {
     setFormData({
       name: product.name,
       price: product.price,
-      originalPrice: product.originalPrice,
-      discount: product.discount,
-      images: product.images,
+      original_price: product.original_price || 0,
+      discount: product.discount || 0,
+      images: product.images?.length ? product.images : [''],
       category: product.category,
       fabric: product.fabric,
-      sizes: product.sizes,
-      description: product.description,
-      careInstructions: product.careInstructions,
-      inStock: product.inStock,
+      sizes: product.sizes || [],
+      description: product.description || '',
+      care_instructions: product.care_instructions || '',
+      in_stock: product.in_stock,
       featured: product.featured,
       trending: product.trending,
     });
     setIsDialogOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSaving(true);
+
+    // Filter out empty image URLs
+    const cleanImages = formData.images.filter(img => img.trim() !== '');
     
-    if (editingProduct) {
-      updateProduct({ ...formData, id: editingProduct.id });
-      toast({ title: 'Product updated successfully!' });
-    } else {
-      const newProduct: Product = {
-        ...formData,
-        id: `prod_${Date.now()}`,
-      };
-      addProduct(newProduct);
-      toast({ title: 'Product added successfully!' });
+    const productData = {
+      name: formData.name,
+      price: formData.price,
+      original_price: formData.original_price,
+      discount: formData.discount,
+      images: cleanImages.length > 0 ? cleanImages : ['https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=600'],
+      category: formData.category,
+      fabric: formData.fabric,
+      sizes: formData.sizes,
+      description: formData.description,
+      care_instructions: formData.care_instructions,
+      in_stock: formData.in_stock,
+      featured: formData.featured,
+      trending: formData.trending,
+    };
+
+    try {
+      if (editingProduct) {
+        const { error } = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', editingProduct.id);
+        
+        if (error) throw error;
+        toast({ title: 'Product updated successfully!' });
+      } else {
+        const { error } = await supabase
+          .from('products')
+          .insert([productData]);
+        
+        if (error) throw error;
+        toast({ title: 'Product added successfully!' });
+      }
+      
+      setIsDialogOpen(false);
+      setFormData(emptyProduct);
+      fetchProducts();
+    } catch (error: any) {
+      toast({ title: 'Error saving product', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
     }
-    
-    setIsDialogOpen(false);
-    setFormData(emptyProduct);
   };
 
-  const handleDelete = (productId: string) => {
-    deleteProduct(productId);
-    setDeleteConfirm(null);
-    toast({ title: 'Product deleted successfully!' });
+  const handleDelete = async (productId: string) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+      
+      if (error) throw error;
+      toast({ title: 'Product deleted successfully!' });
+      setDeleteConfirm(null);
+      fetchProducts();
+    } catch (error: any) {
+      toast({ title: 'Error deleting product', description: error.message, variant: 'destructive' });
+    }
   };
 
   const toggleSize = (size: string) => {
@@ -123,6 +220,37 @@ const AdminProducts: React.FC = () => {
     return 0;
   };
 
+  const addImageField = () => {
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, ''],
+    }));
+  };
+
+  const removeImageField = (index: number) => {
+    if (formData.images.length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        images: prev.images.filter((_, i) => i !== index),
+      }));
+    }
+  };
+
+  const updateImage = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.map((img, i) => i === index ? value : img),
+    }));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -136,7 +264,6 @@ const AdminProducts: React.FC = () => {
         </Button>
       </div>
 
-      {/* Search */}
       <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <Input
@@ -147,7 +274,6 @@ const AdminProducts: React.FC = () => {
         />
       </div>
 
-      {/* Products Table */}
       <div className="bg-card rounded-xl border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -156,7 +282,7 @@ const AdminProducts: React.FC = () => {
                 <th className="text-left p-4 font-medium">Product</th>
                 <th className="text-left p-4 font-medium">Category</th>
                 <th className="text-left p-4 font-medium">Price</th>
-                <th className="text-left p-4 font-medium">Stock</th>
+                <th className="text-left p-4 font-medium">Images</th>
                 <th className="text-left p-4 font-medium">Status</th>
                 <th className="text-right p-4 font-medium">Actions</th>
               </tr>
@@ -173,7 +299,7 @@ const AdminProducts: React.FC = () => {
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <img
-                        src={product.images[0]}
+                        src={product.images?.[0] || 'https://via.placeholder.com/100'}
                         alt={product.name}
                         className="w-12 h-14 object-cover rounded-lg"
                       />
@@ -185,37 +311,34 @@ const AdminProducts: React.FC = () => {
                   </td>
                   <td className="p-4 text-sm">{product.category}</td>
                   <td className="p-4">
-                    <p className="font-semibold">₹{product.price.toLocaleString()}</p>
+                    <p className="font-semibold">₹{product.price?.toLocaleString()}</p>
                     {product.discount > 0 && (
                       <p className="text-xs text-green-600">-{product.discount}%</p>
                     )}
                   </td>
                   <td className="p-4">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      product.inStock 
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                    }`}>
-                      {product.inStock ? 'In Stock' : 'Out of Stock'}
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm">{product.images?.length || 0}</span>
+                    </div>
                   </td>
                   <td className="p-4">
-                    <div className="flex gap-1">
+                    <div className="flex flex-wrap gap-1">
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        product.in_stock 
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                          : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                      }`}>
+                        {product.in_stock ? 'In Stock' : 'Out'}
+                      </span>
                       {product.featured && (
                         <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary">Featured</span>
-                      )}
-                      {product.trending && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-accent text-accent-foreground">Trending</span>
                       )}
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openEditDialog(product)}
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => openEditDialog(product)}>
                         <Edit2 className="w-4 h-4" />
                       </Button>
                       <Button
@@ -301,7 +424,7 @@ const AdminProducts: React.FC = () => {
                     setFormData(prev => ({
                       ...prev,
                       price,
-                      discount: calculateDiscount(price, prev.originalPrice),
+                      discount: calculateDiscount(price, prev.original_price),
                     }));
                   }}
                   required
@@ -313,28 +436,65 @@ const AdminProducts: React.FC = () => {
                 <Label>Original Price (₹)</Label>
                 <Input
                   type="number"
-                  value={formData.originalPrice}
+                  value={formData.original_price}
                   onChange={(e) => {
-                    const originalPrice = Number(e.target.value);
+                    const original_price = Number(e.target.value);
                     setFormData(prev => ({
                       ...prev,
-                      originalPrice,
-                      discount: calculateDiscount(prev.price, originalPrice),
+                      original_price,
+                      discount: calculateDiscount(prev.price, original_price),
                     }));
                   }}
                   className="mt-1"
                 />
               </div>
 
+              {/* Multiple Images Section */}
               <div className="md:col-span-2">
-                <Label>Image URL *</Label>
-                <Input
-                  value={formData.images[0]}
-                  onChange={(e) => setFormData(prev => ({ ...prev, images: [e.target.value] }))}
-                  placeholder="https://example.com/image.jpg"
-                  required
-                  className="mt-1"
-                />
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Product Images *</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addImageField}>
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Image
+                  </Button>
+                </div>
+                <div className="space-y-3">
+                  {formData.images.map((image, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={image}
+                        onChange={(e) => updateImage(index, e.target.value)}
+                        placeholder={`Image URL ${index + 1}`}
+                        className="flex-1"
+                      />
+                      {formData.images.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeImageField(index)}
+                          className="text-destructive"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {/* Image Previews */}
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {formData.images.filter(img => img.trim()).map((img, index) => (
+                    <img
+                      key={index}
+                      src={img}
+                      alt={`Preview ${index + 1}`}
+                      className="w-16 h-20 object-cover rounded-lg border"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100?text=Error';
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
 
               <div className="md:col-span-2">
@@ -371,8 +531,8 @@ const AdminProducts: React.FC = () => {
               <div className="md:col-span-2">
                 <Label>Care Instructions</Label>
                 <Input
-                  value={formData.careInstructions}
-                  onChange={(e) => setFormData(prev => ({ ...prev, careInstructions: e.target.value }))}
+                  value={formData.care_instructions}
+                  onChange={(e) => setFormData(prev => ({ ...prev, care_instructions: e.target.value }))}
                   placeholder="Dry clean only. Store in a cool, dry place."
                   className="mt-1"
                 />
@@ -381,8 +541,8 @@ const AdminProducts: React.FC = () => {
               <div className="md:col-span-2 flex flex-wrap gap-6">
                 <div className="flex items-center gap-2">
                   <Switch
-                    checked={formData.inStock}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, inStock: checked }))}
+                    checked={formData.in_stock}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, in_stock: checked }))}
                   />
                   <Label>In Stock</Label>
                 </div>
@@ -404,8 +564,15 @@ const AdminProducts: React.FC = () => {
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button type="submit" className="btn-luxury flex-1">
-                {editingProduct ? 'Update Product' : 'Add Product'}
+              <Button type="submit" className="btn-luxury flex-1" disabled={isSaving}>
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  editingProduct ? 'Update Product' : 'Add Product'
+                )}
               </Button>
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel
@@ -415,7 +582,7 @@ const AdminProducts: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Confirmation */}
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>

@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Eye, Package, Truck, CheckCircle, XCircle, Clock } from 'lucide-react';
-import { useStore } from '@/context/StoreContext';
-import { Order } from '@/types/store';
+import { Search, Eye, Package, Truck, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,7 +19,31 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
-const statusConfig = {
+interface OrderItem {
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    images: string[];
+  };
+  size: string;
+  quantity: number;
+}
+
+interface Order {
+  id: string;
+  order_number: string;
+  items: OrderItem[];
+  total: number;
+  status: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string;
+  address: string;
+  created_at: string;
+}
+
+const statusConfig: Record<string, { label: string; icon: React.ComponentType<any>; color: string }> = {
   pending: { label: 'Pending', icon: Clock, color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' },
   confirmed: { label: 'Confirmed', icon: Package, color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
   shipped: { label: 'Shipped', icon: Truck, color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
@@ -29,26 +52,59 @@ const statusConfig = {
 };
 
 const AdminOrders: React.FC = () => {
-  const { orders, updateOrderStatus } = useStore();
   const { toast } = useToast();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setOrders((data || []) as unknown as Order[]);
+    } catch (error: any) {
+      toast({ title: 'Error loading orders', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const filteredOrders = orders.filter(order => {
     const matchesSearch = 
-      order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customerPhone.includes(searchQuery);
+      order.order_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.customer_phone?.includes(searchQuery);
     const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
-  const handleStatusChange = (orderId: string, status: Order['status']) => {
-    updateOrderStatus(orderId, status);
-    toast({ title: `Order status updated to ${status}` });
-    if (selectedOrder?.id === orderId) {
-      setSelectedOrder(prev => prev ? { ...prev, status } : null);
+  const handleStatusChange = async (orderId: string, status: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status })
+        .eq('id', orderId);
+
+      if (error) throw error;
+      
+      toast({ title: `Order status updated to ${status}` });
+      fetchOrders();
+      
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder(prev => prev ? { ...prev, status } : null);
+      }
+    } catch (error: any) {
+      toast({ title: 'Error updating status', description: error.message, variant: 'destructive' });
     }
   };
 
@@ -62,6 +118,14 @@ const AdminOrders: React.FC = () => {
     });
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-8">
@@ -69,7 +133,6 @@ const AdminOrders: React.FC = () => {
         <p className="text-muted-foreground">{orders.length} total orders</p>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -95,7 +158,6 @@ const AdminOrders: React.FC = () => {
         </Select>
       </div>
 
-      {/* Status Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         {Object.entries(statusConfig).map(([status, config]) => {
           const count = orders.filter(o => o.status === status).length;
@@ -104,7 +166,7 @@ const AdminOrders: React.FC = () => {
               key={status}
               whileHover={{ scale: 1.02 }}
               onClick={() => setFilterStatus(status)}
-              className={`p-4 rounded-xl border cursor-pointer transition-all ${
+              className={`p-4 rounded-xl border cursor-pointer transition-all bg-card ${
                 filterStatus === status ? 'ring-2 ring-primary' : ''
               }`}
             >
@@ -116,7 +178,6 @@ const AdminOrders: React.FC = () => {
         })}
       </div>
 
-      {/* Orders Table */}
       <div className="bg-card rounded-xl border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -142,24 +203,24 @@ const AdminOrders: React.FC = () => {
                     className="border-t hover:bg-muted/30 transition-colors"
                   >
                     <td className="p-4">
-                      <p className="font-mono text-sm">{order.id}</p>
+                      <p className="font-mono text-sm">{order.order_number}</p>
                     </td>
                     <td className="p-4">
-                      <p className="font-medium">{order.customerName}</p>
-                      <p className="text-sm text-muted-foreground">{order.customerPhone}</p>
+                      <p className="font-medium">{order.customer_name}</p>
+                      <p className="text-sm text-muted-foreground">{order.customer_phone}</p>
                     </td>
                     <td className="p-4 text-sm">
-                      {order.items.length} item{order.items.length > 1 ? 's' : ''}
+                      {(order.items as OrderItem[])?.length || 0} item(s)
                     </td>
                     <td className="p-4 font-semibold">
-                      ₹{order.total.toLocaleString()}
+                      ₹{order.total?.toLocaleString()}
                     </td>
                     <td className="p-4">
                       <Select
                         value={order.status}
-                        onValueChange={(value: Order['status']) => handleStatusChange(order.id, value)}
+                        onValueChange={(value) => handleStatusChange(order.id, value)}
                       >
-                        <SelectTrigger className={`w-32 h-8 text-xs ${statusConfig[order.status].color}`}>
+                        <SelectTrigger className={`w-32 h-8 text-xs ${statusConfig[order.status]?.color || ''}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -172,7 +233,7 @@ const AdminOrders: React.FC = () => {
                       </Select>
                     </td>
                     <td className="p-4 text-sm text-muted-foreground">
-                      {formatDate(order.createdAt)}
+                      {formatDate(order.created_at)}
                     </td>
                     <td className="p-4">
                       <div className="flex justify-end">
@@ -199,68 +260,62 @@ const AdminOrders: React.FC = () => {
         </div>
       </div>
 
-      {/* Order Detail Dialog */}
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-display text-2xl">
-              Order Details
-            </DialogTitle>
+            <DialogTitle className="font-display text-2xl">Order Details</DialogTitle>
           </DialogHeader>
           
           {selectedOrder && (
             <div className="space-y-6">
-              {/* Order Info */}
               <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-xl">
                 <div>
                   <p className="text-sm text-muted-foreground">Order ID</p>
-                  <p className="font-mono font-semibold">{selectedOrder.id}</p>
+                  <p className="font-mono font-semibold">{selectedOrder.order_number}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Date</p>
-                  <p className="font-semibold">{formatDate(selectedOrder.createdAt)}</p>
+                  <p className="font-semibold">{formatDate(selectedOrder.created_at)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Status</p>
-                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${statusConfig[selectedOrder.status].color}`}>
-                    {statusConfig[selectedOrder.status].label}
+                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${statusConfig[selectedOrder.status]?.color || ''}`}>
+                    {statusConfig[selectedOrder.status]?.label || selectedOrder.status}
                   </span>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total</p>
-                  <p className="font-bold text-lg text-primary">₹{selectedOrder.total.toLocaleString()}</p>
+                  <p className="font-bold text-lg text-primary">₹{selectedOrder.total?.toLocaleString()}</p>
                 </div>
               </div>
 
-              {/* Customer Info */}
               <div>
                 <h3 className="font-semibold mb-3">Customer Information</h3>
                 <div className="p-4 bg-muted/50 rounded-xl space-y-2">
-                  <p><span className="text-muted-foreground">Name:</span> {selectedOrder.customerName}</p>
-                  <p><span className="text-muted-foreground">Phone:</span> {selectedOrder.customerPhone}</p>
-                  <p><span className="text-muted-foreground">Email:</span> {selectedOrder.customerEmail || 'N/A'}</p>
+                  <p><span className="text-muted-foreground">Name:</span> {selectedOrder.customer_name}</p>
+                  <p><span className="text-muted-foreground">Phone:</span> {selectedOrder.customer_phone}</p>
+                  <p><span className="text-muted-foreground">Email:</span> {selectedOrder.customer_email || 'N/A'}</p>
                   <p><span className="text-muted-foreground">Address:</span> {selectedOrder.address}</p>
                 </div>
               </div>
 
-              {/* Order Items */}
               <div>
                 <h3 className="font-semibold mb-3">Order Items</h3>
                 <div className="space-y-3">
-                  {selectedOrder.items.map((item, index) => (
+                  {(selectedOrder.items as OrderItem[])?.map((item, index) => (
                     <div key={index} className="flex gap-4 p-4 bg-muted/50 rounded-xl">
                       <img
-                        src={item.product.images[0]}
-                        alt={item.product.name}
+                        src={item.product?.images?.[0] || 'https://via.placeholder.com/100'}
+                        alt={item.product?.name}
                         className="w-16 h-20 object-cover rounded-lg"
                       />
                       <div className="flex-1">
-                        <p className="font-medium">{item.product.name}</p>
+                        <p className="font-medium">{item.product?.name}</p>
                         <p className="text-sm text-muted-foreground">
                           Size: {item.size} | Qty: {item.quantity}
                         </p>
                         <p className="font-semibold mt-1">
-                          ₹{(item.product.price * item.quantity).toLocaleString()}
+                          ₹{((item.product?.price || 0) * item.quantity).toLocaleString()}
                         </p>
                       </div>
                     </div>
@@ -268,12 +323,11 @@ const AdminOrders: React.FC = () => {
                 </div>
               </div>
 
-              {/* Update Status */}
               <div>
                 <h3 className="font-semibold mb-3">Update Status</h3>
                 <Select
                   value={selectedOrder.status}
-                  onValueChange={(value: Order['status']) => handleStatusChange(selectedOrder.id, value)}
+                  onValueChange={(value) => handleStatusChange(selectedOrder.id, value)}
                 >
                   <SelectTrigger>
                     <SelectValue />

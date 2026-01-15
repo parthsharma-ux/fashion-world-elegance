@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -12,17 +12,19 @@ import {
   X,
   Moon,
   Sun,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
-import { useStore } from '@/context/StoreContext';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout, isAdmin } = useStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
       return document.documentElement.classList.contains('dark');
@@ -30,19 +32,54 @@ const AdminLayout: React.FC = () => {
     return false;
   });
 
-  React.useEffect(() => {
-    if (!isAdmin) {
-      navigate('/admin/login');
-    }
-  }, [isAdmin, navigate]);
+  useEffect(() => {
+    checkAdminStatus();
+  }, []);
 
-  React.useEffect(() => {
+  const checkAdminStatus = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        navigate('/admin/login');
+        return;
+      }
+
+      const { data: adminData } = await supabase
+        .from('admin_users')
+        .select('email')
+        .eq('email', session.user.email)
+        .single();
+
+      if (!adminData) {
+        await supabase.auth.signOut();
+        navigate('/admin/login');
+        return;
+      }
+
+      setIsAdmin(true);
+    } catch (error) {
+      navigate('/admin/login');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
   }, [isDark]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!isAdmin) return null;
 
@@ -54,8 +91,8 @@ const AdminLayout: React.FC = () => {
     { href: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate('/');
   };
 
@@ -99,7 +136,6 @@ const AdminLayout: React.FC = () => {
       </nav>
 
       <div className="p-4 border-t border-border space-y-2">
-        {/* Theme Toggle */}
         <button
           onClick={() => setIsDark(!isDark)}
           className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-muted transition-colors"
@@ -108,7 +144,6 @@ const AdminLayout: React.FC = () => {
           {isDark ? 'Light Mode' : 'Dark Mode'}
         </button>
 
-        {/* Logout */}
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
@@ -122,12 +157,10 @@ const AdminLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-muted/30 flex">
-      {/* Desktop Sidebar */}
       <aside className="hidden lg:block w-64 bg-card border-r border-border fixed inset-y-0 left-0 z-30">
         <Sidebar />
       </aside>
 
-      {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border flex items-center justify-between px-4 z-40">
         <Link to="/" className="font-display text-lg font-bold">
           Fashion<span className="text-primary">World</span>
@@ -141,7 +174,6 @@ const AdminLayout: React.FC = () => {
         </Button>
       </header>
 
-      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
@@ -174,7 +206,6 @@ const AdminLayout: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
       <main className="flex-1 lg:ml-64 pt-16 lg:pt-0">
         <div className="p-4 md:p-8">
           <Outlet />
