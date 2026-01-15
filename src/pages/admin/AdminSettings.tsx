@@ -1,26 +1,107 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Phone, Mail, MapPin, Instagram, Facebook, MessageCircle } from 'lucide-react';
-import { useStore } from '@/context/StoreContext';
+import { Save, Phone, Mail, MapPin, Instagram, Facebook, MessageCircle, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
-const AdminSettings: React.FC = () => {
-  const { settings, updateSettings } = useStore();
-  const { toast } = useToast();
-  const [formData, setFormData] = useState(settings);
+interface SiteSettings {
+  id: string;
+  whatsapp_number: string;
+  email: string;
+  phone: string;
+  address: string;
+  instagram_url: string;
+  facebook_url: string;
+}
 
-  const handleSubmit = (e: React.FormEvent) => {
+const AdminSettings: React.FC = () => {
+  const { toast } = useToast();
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    whatsapp_number: '',
+    email: '',
+    phone: '',
+    address: '',
+    instagram_url: '',
+    facebook_url: '',
+  });
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('*')
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      
+      if (data) {
+        setSettings(data);
+        setFormData({
+          whatsapp_number: data.whatsapp_number || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          address: data.address || '',
+          instagram_url: data.instagram_url || '',
+          facebook_url: data.facebook_url || '',
+        });
+      }
+    } catch (error: any) {
+      toast({ title: 'Error loading settings', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateSettings(formData);
-    toast({ title: 'Settings saved successfully!' });
+    setIsSaving(true);
+
+    try {
+      if (settings?.id) {
+        const { error } = await supabase
+          .from('site_settings')
+          .update(formData)
+          .eq('id', settings.id);
+        
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('site_settings')
+          .insert([formData]);
+        
+        if (error) throw error;
+      }
+      
+      toast({ title: 'Settings saved successfully!' });
+      fetchSettings();
+    } catch (error: any) {
+      toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -30,7 +111,6 @@ const AdminSettings: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
-        {/* Contact Information */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -43,14 +123,14 @@ const AdminSettings: React.FC = () => {
           
           <div className="space-y-4">
             <div>
-              <Label htmlFor="whatsappNumber" className="flex items-center gap-2">
+              <Label htmlFor="whatsapp_number" className="flex items-center gap-2">
                 <MessageCircle className="w-4 h-4 text-green-500" />
                 WhatsApp Number
               </Label>
               <Input
-                id="whatsappNumber"
-                name="whatsappNumber"
-                value={formData.whatsappNumber}
+                id="whatsapp_number"
+                name="whatsapp_number"
+                value={formData.whatsapp_number}
                 onChange={handleChange}
                 placeholder="916376327343"
                 className="mt-1"
@@ -108,7 +188,6 @@ const AdminSettings: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Social Media */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -119,14 +198,14 @@ const AdminSettings: React.FC = () => {
           
           <div className="space-y-4">
             <div>
-              <Label htmlFor="instagramUrl" className="flex items-center gap-2">
+              <Label htmlFor="instagram_url" className="flex items-center gap-2">
                 <Instagram className="w-4 h-4 text-pink-500" />
                 Instagram URL
               </Label>
               <Input
-                id="instagramUrl"
-                name="instagramUrl"
-                value={formData.instagramUrl}
+                id="instagram_url"
+                name="instagram_url"
+                value={formData.instagram_url}
                 onChange={handleChange}
                 placeholder="https://instagram.com/fashionworld"
                 className="mt-1"
@@ -134,14 +213,14 @@ const AdminSettings: React.FC = () => {
             </div>
 
             <div>
-              <Label htmlFor="facebookUrl" className="flex items-center gap-2">
+              <Label htmlFor="facebook_url" className="flex items-center gap-2">
                 <Facebook className="w-4 h-4 text-blue-500" />
                 Facebook URL
               </Label>
               <Input
-                id="facebookUrl"
-                name="facebookUrl"
-                value={formData.facebookUrl}
+                id="facebook_url"
+                name="facebook_url"
+                value={formData.facebook_url}
                 onChange={handleChange}
                 placeholder="https://facebook.com/fashionworld"
                 className="mt-1"
@@ -150,15 +229,23 @@ const AdminSettings: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Save Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Button type="submit" className="btn-luxury w-full sm:w-auto">
-            <Save className="w-4 h-4 mr-2" />
-            Save Settings
+          <Button type="submit" className="btn-luxury w-full sm:w-auto" disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Save Settings
+              </>
+            )}
           </Button>
         </motion.div>
       </form>
