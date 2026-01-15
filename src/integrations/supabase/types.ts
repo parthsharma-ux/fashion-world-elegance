@@ -14,7 +14,213 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      banners: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          cta_link: string | null
+          cta_text: string | null
+          id: string
+          image: string | null
+          subtitle: string | null
+          title: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string | null
+          id?: string
+          image?: string | null
+          subtitle?: string | null
+          title?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string | null
+          id?: string
+          image?: string | null
+          subtitle?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          address: string
+          created_at: string
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string
+          id: string
+          items: Json
+          order_number: string
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          customer_email?: string | null
+          customer_name: string
+          customer_phone: string
+          id?: string
+          items?: Json
+          order_number: string
+          status?: string
+          total: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          items?: Json
+          order_number?: string
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          care_instructions: string | null
+          category: string
+          created_at: string
+          description: string | null
+          discount: number | null
+          fabric: string
+          featured: boolean | null
+          id: string
+          images: string[]
+          in_stock: boolean | null
+          name: string
+          original_price: number | null
+          price: number
+          sizes: string[]
+          trending: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          care_instructions?: string | null
+          category: string
+          created_at?: string
+          description?: string | null
+          discount?: number | null
+          fabric: string
+          featured?: boolean | null
+          id?: string
+          images?: string[]
+          in_stock?: boolean | null
+          name: string
+          original_price?: number | null
+          price: number
+          sizes?: string[]
+          trending?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          care_instructions?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          discount?: number | null
+          fabric?: string
+          featured?: boolean | null
+          id?: string
+          images?: string[]
+          in_stock?: boolean | null
+          name?: string
+          original_price?: number | null
+          price?: number
+          sizes?: string[]
+          trending?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          address: string | null
+          email: string | null
+          facebook_url: string | null
+          id: string
+          instagram_url: string | null
+          phone: string | null
+          updated_at: string
+          whatsapp_number: string | null
+        }
+        Insert: {
+          address?: string | null
+          email?: string | null
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          phone?: string | null
+          updated_at?: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          address?: string | null
+          email?: string | null
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          phone?: string | null
+          updated_at?: string
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
