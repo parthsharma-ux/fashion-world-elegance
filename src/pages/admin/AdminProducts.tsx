@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit2, Trash2, Search, X, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, X, Loader2, Image as ImageIcon, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,7 +49,7 @@ const emptyProduct = {
   price: 0,
   original_price: 0,
   discount: 0,
-  images: [''],
+  images: [] as string[],
   category: '',
   fabric: '',
   sizes: [] as string[],
@@ -71,6 +71,8 @@ const AdminProducts: React.FC = () => {
   const [formData, setFormData] = useState(emptyProduct);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fabrics = ['Cotton', 'Silk', 'Rayon', 'Chanderi Silk', 'Velvet', 'Linen', 'Georgette', 'Pure Cotton', 'Pure Silk'];
   const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
@@ -124,7 +126,7 @@ const AdminProducts: React.FC = () => {
       price: product.price,
       original_price: product.original_price || 0,
       discount: product.discount || 0,
-      images: product.images?.length ? product.images : [''],
+      images: product.images?.length ? product.images : [],
       category: product.category,
       fabric: product.fabric,
       sizes: product.sizes || [],
@@ -137,19 +139,83 @@ const AdminProducts: React.FC = () => {
     setIsDialogOpen(true);
   };
 
+  const handleFileUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    
+    setIsUploading(true);
+    const uploadedUrls: string[] = [];
+    
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          toast({ title: 'Invalid file type', description: `${file.name} is not an image`, variant: 'destructive' });
+          continue;
+        }
+        
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          toast({ title: 'File too large', description: `${file.name} exceeds 5MB limit`, variant: 'destructive' });
+          continue;
+        }
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `products/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, file);
+        
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          toast({ title: 'Upload failed', description: uploadError.message, variant: 'destructive' });
+          continue;
+        }
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+        
+        uploadedUrls.push(publicUrl);
+      }
+      
+      if (uploadedUrls.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          images: [...prev.images, ...uploadedUrls],
+        }));
+        toast({ title: `${uploadedUrls.length} image(s) uploaded successfully!` });
+      }
+    } catch (error: any) {
+      toast({ title: 'Upload error', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-
-    // Filter out empty image URLs
-    const cleanImages = formData.images.filter(img => img.trim() !== '');
     
     const productData = {
       name: formData.name,
       price: formData.price,
       original_price: formData.original_price,
       discount: formData.discount,
-      images: cleanImages.length > 0 ? cleanImages : ['https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=600'],
+      images: formData.images.length > 0 ? formData.images : ['https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=600'],
       category: formData.category,
       fabric: formData.fabric,
       sizes: formData.sizes,
@@ -218,29 +284,6 @@ const AdminProducts: React.FC = () => {
       return Math.round(((originalPrice - price) / originalPrice) * 100);
     }
     return 0;
-  };
-
-  const addImageField = () => {
-    setFormData(prev => ({
-      ...prev,
-      images: [...prev.images, ''],
-    }));
-  };
-
-  const removeImageField = (index: number) => {
-    if (formData.images.length > 1) {
-      setFormData(prev => ({
-        ...prev,
-        images: prev.images.filter((_, i) => i !== index),
-      }));
-    }
-  };
-
-  const updateImage = (index: number, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.map((img, i) => i === index ? value : img),
-    }));
   };
 
   if (isLoading) {
@@ -449,51 +492,72 @@ const AdminProducts: React.FC = () => {
                 />
               </div>
 
-              {/* Multiple Images Section */}
+              {/* Multiple Image Upload Section */}
               <div className="md:col-span-2">
-                <div className="flex items-center justify-between mb-2">
-                  <Label>Product Images *</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={addImageField}>
-                    <Plus className="w-4 h-4 mr-1" />
-                    Add Image
-                  </Button>
-                </div>
-                <div className="space-y-3">
-                  {formData.images.map((image, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        value={image}
-                        onChange={(e) => updateImage(index, e.target.value)}
-                        placeholder={`Image URL ${index + 1}`}
-                        className="flex-1"
-                      />
-                      {formData.images.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeImageField(index)}
-                          className="text-destructive"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                {/* Image Previews */}
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {formData.images.filter(img => img.trim()).map((img, index) => (
-                    <img
-                      key={index}
-                      src={img}
-                      alt={`Preview ${index + 1}`}
-                      className="w-16 h-20 object-cover rounded-lg border"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100?text=Error';
-                      }}
+                <Label>Product Images *</Label>
+                <div className="mt-2 space-y-4">
+                  {/* Upload Area */}
+                  <div 
+                    className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => handleFileUpload(e.target.files)}
+                      className="hidden"
                     />
-                  ))}
+                    {isUploading ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        <p className="text-sm text-muted-foreground">Uploading images...</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2">
+                        <Upload className="w-8 h-8 text-muted-foreground" />
+                        <p className="text-sm font-medium">Click to upload images</p>
+                        <p className="text-xs text-muted-foreground">PNG, JPG, WEBP up to 5MB each</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Image Previews Grid */}
+                  {formData.images.length > 0 && (
+                    <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
+                      {formData.images.map((img, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={img}
+                            alt={`Product ${index + 1}`}
+                            className="w-full aspect-[3/4] object-cover rounded-lg border"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100?text=Error';
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                          {index === 0 && (
+                            <span className="absolute bottom-1 left-1 text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
+                              Main
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {formData.images.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center">
+                      No images uploaded yet. Upload at least one image for your product.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -564,7 +628,7 @@ const AdminProducts: React.FC = () => {
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button type="submit" className="btn-luxury flex-1" disabled={isSaving}>
+              <Button type="submit" className="btn-luxury flex-1" disabled={isSaving || isUploading}>
                 {isSaving ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
