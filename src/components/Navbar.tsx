@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Heart, Search, Menu, X, User } from 'lucide-react';
+import { ShoppingBag, Heart, Search, Menu, X } from 'lucide-react';
 import { useStore } from '@/context/StoreContext';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { getCartCount, wishlist, isAdmin } = useStore();
+  const { getCartCount, wishlist } = useStore();
   const location = useLocation();
 
   useEffect(() => {
@@ -136,18 +135,7 @@ const Navbar: React.FC = () => {
                 </motion.div>
               </Link>
 
-              <Link to={isAdmin ? '/admin' : '/admin/login'}>
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={cn(
-                    'p-2 rounded-full transition-colors',
-                    isScrolled ? 'hover:bg-muted' : 'hover:bg-white/10'
-                  )}
-                >
-                  <User className={cn('w-5 h-5', isScrolled ? 'text-foreground' : 'text-white', isAdmin && 'text-primary')} />
-                </motion.div>
-              </Link>
+{/* Admin link removed - admin panel is hidden from public access */}
 
               {/* Mobile Menu Button */}
               <button

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit2, Trash2, Search, X, Loader2, Image as ImageIcon, Upload } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Loader2, Image as ImageIcon, Upload } from 'lucide-react';
+import DraggableImageGrid from '@/components/admin/DraggableImageGrid';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -203,6 +204,13 @@ const AdminProducts: React.FC = () => {
     setFormData(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
+
+  const reorderImages = (newImages: string[]) => {
+    setFormData(prev => ({
+      ...prev,
+      images: newImages,
     }));
   };
 
@@ -523,34 +531,18 @@ const AdminProducts: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Image Previews Grid */}
+                  {/* Draggable Image Previews Grid */}
                   {formData.images.length > 0 && (
-                    <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
-                      {formData.images.map((img, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={img}
-                            alt={`Product ${index + 1}`}
-                            className="w-full aspect-[3/4] object-cover rounded-lg border"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100?text=Error';
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                          {index === 0 && (
-                            <span className="absolute bottom-1 left-1 text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
-                              Main
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                    <>
+                      <p className="text-xs text-muted-foreground">
+                        Drag images to reorder. First image will be the main product image.
+                      </p>
+                      <DraggableImageGrid
+                        images={formData.images}
+                        onReorder={reorderImages}
+                        onRemove={removeImage}
+                      />
+                    </>
                   )}
 
                   {formData.images.length === 0 && (
