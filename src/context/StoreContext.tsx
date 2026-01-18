@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Product, CartItem, Category, Review, Order, Banner, SiteSettings } from '@/types/store';
+import { supabase } from '@/integrations/supabase/client';
 
 interface StoreContextType {
   products: Product[];
@@ -12,6 +13,7 @@ interface StoreContextType {
   wishlist: Product[];
   isAdmin: boolean;
   adminEmail: string;
+  isLoading: boolean;
   addToCart: (product: Product, size: string, quantity?: number) => void;
   removeFromCart: (productId: string, size: string) => void;
   updateCartQuantity: (productId: string, size: string, quantity: number) => void;
@@ -30,6 +32,7 @@ interface StoreContextType {
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
   updateSettings: (settings: SiteSettings) => void;
   updateBanner: (banner: Banner) => void;
+  refreshProducts: () => Promise<void>;
 }
 
 const defaultSettings: SiteSettings = {
@@ -156,13 +159,29 @@ const defaultReviews: Review[] = [
   { id: '4', name: 'Kavita Singh', avatar: 'KS', rating: 5, comment: 'The festive collection is stunning. Got so many compliments!', date: '2024-01-05' },
 ];
 
+// Helper function to map database product to frontend Product type
+const mapDbProductToProduct = (dbProduct: any): Product => ({
+  id: dbProduct.id,
+  name: dbProduct.name,
+  price: dbProduct.price,
+  originalPrice: dbProduct.original_price || dbProduct.price,
+  discount: dbProduct.discount || 0,
+  images: dbProduct.images || [],
+  category: dbProduct.category,
+  fabric: dbProduct.fabric,
+  sizes: dbProduct.sizes || [],
+  description: dbProduct.description || '',
+  careInstructions: dbProduct.care_instructions || '',
+  inStock: dbProduct.in_stock ?? true,
+  featured: dbProduct.featured ?? false,
+  trending: dbProduct.trending ?? false,
+});
+
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('fashionworld_products');
-    return saved ? JSON.parse(saved) : defaultProducts;
-  });
+  const [products, setProducts] = useState<Product[]>(defaultProducts);
+  const [isLoading, setIsLoading] = useState(true);
   
   const [categories] = useState<Category[]>(defaultCategories);
   const [reviews] = useState<Review[]>(defaultReviews);
@@ -198,11 +217,40 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const adminEmail = 'radhuparthu@gmail.com';
 
-  // Persist to localStorage
-  useEffect(() => {
-    localStorage.setItem('fashionworld_products', JSON.stringify(products));
-  }, [products]);
+  // Fetch products from Supabase
+  const fetchProductsFromDb = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
 
+      if (error) {
+        console.error('Error fetching products:', error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const mappedProducts = data.map(mapDbProductToProduct);
+        setProducts(mappedProducts);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const refreshProducts = async () => {
+    await fetchProductsFromDb();
+  };
+
+  // Fetch products on mount
+  useEffect(() => {
+    fetchProductsFromDb();
+  }, []);
+
+  // Persist to localStorage
   useEffect(() => {
     localStorage.setItem('fashionworld_orders', JSON.stringify(orders));
   }, [orders]);
@@ -331,6 +379,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       wishlist,
       isAdmin,
       adminEmail,
+      isLoading,
       addToCart,
       removeFromCart,
       updateCartQuantity,
@@ -349,6 +398,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       updateOrderStatus,
       updateSettings,
       updateBanner,
+      refreshProducts,
     }}>
       {children}
     </StoreContext.Provider>

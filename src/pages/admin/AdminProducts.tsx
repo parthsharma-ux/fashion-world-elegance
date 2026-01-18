@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit2, Trash2, Search, Loader2, Image as ImageIcon, Upload } from 'lucide-react';
 import DraggableImageGrid from '@/components/admin/DraggableImageGrid';
 import { supabase } from '@/integrations/supabase/client';
+import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -63,6 +64,7 @@ const emptyProduct = {
 
 const AdminProducts: React.FC = () => {
   const { toast } = useToast();
+  const { refreshProducts } = useStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -255,6 +257,8 @@ const AdminProducts: React.FC = () => {
       setIsDialogOpen(false);
       setFormData(emptyProduct);
       fetchProducts();
+      // Also refresh the store context so frontend updates
+      refreshProducts();
     } catch (error: any) {
       toast({ title: 'Error saving product', description: error.message, variant: 'destructive' });
     } finally {
@@ -273,6 +277,7 @@ const AdminProducts: React.FC = () => {
       toast({ title: 'Product deleted successfully!' });
       setDeleteConfirm(null);
       fetchProducts();
+      refreshProducts();
     } catch (error: any) {
       toast({ title: 'Error deleting product', description: error.message, variant: 'destructive' });
     }
