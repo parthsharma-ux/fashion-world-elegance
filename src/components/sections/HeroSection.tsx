@@ -1,6 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { ArrowRight, MessageCircle, Sparkles } from 'lucide-react';
 import { useStore } from '@/context/StoreContext';
 
@@ -8,6 +8,7 @@ const HeroSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { settings } = useStore();
+  const [isVideoLoading, setIsVideoLoading] = useState(true);
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -24,6 +25,10 @@ const HeroSection: React.FC = () => {
     }
   }, []);
 
+  const handleVideoLoad = () => {
+    setIsVideoLoading(false);
+  };
+
   const handleWhatsAppOrder = () => {
     const message = encodeURIComponent('Hi! I would like to place an order.');
     window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank');
@@ -31,6 +36,75 @@ const HeroSection: React.FC = () => {
 
   return (
     <section ref={containerRef} className="relative min-h-screen overflow-hidden">
+      {/* Loading Preloader */}
+      <AnimatePresence>
+        {isVideoLoading && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="absolute inset-0 z-50 bg-background flex items-center justify-center"
+          >
+            <div className="text-center">
+              {/* Animated Logo */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="mb-8"
+              >
+                <h1 className="font-display text-4xl md:text-5xl font-bold">
+                  <span className="text-foreground">Fashion</span>
+                  <span className="text-gradient-gold ml-2">World</span>
+                </h1>
+              </motion.div>
+              
+              {/* Elegant Loading Animation */}
+              <div className="flex items-center justify-center gap-2 mb-6">
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="w-3 h-3 rounded-full bg-primary"
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      opacity: [0.5, 1, 0.5],
+                    }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      delay: i * 0.2,
+                    }}
+                  />
+                ))}
+              </div>
+              
+              {/* Loading Progress Bar */}
+              <div className="w-48 h-0.5 bg-muted rounded-full overflow-hidden mx-auto">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-primary via-primary/80 to-primary"
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '100%' }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                />
+              </div>
+              
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-muted-foreground text-sm mt-4"
+              >
+                Loading premium experience...
+              </motion.p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Video Background */}
       <motion.div style={{ y, scale }} className="absolute inset-0">
         <video
@@ -39,6 +113,8 @@ const HeroSection: React.FC = () => {
           loop
           muted
           playsInline
+          onCanPlayThrough={handleVideoLoad}
+          onLoadedData={handleVideoLoad}
           className="w-full h-full object-cover"
         >
           <source src="/videos/hero-video.mp4" type="video/mp4" />
