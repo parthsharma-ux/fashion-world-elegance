@@ -14,11 +14,14 @@ const Cart: React.FC = () => {
 
   const handleWhatsAppOrder = () => {
     const itemsList = cart
-      .map(item => `- ${item.product.name} (${item.size}) x ${item.quantity} = ₹${(item.product.price * item.quantity).toLocaleString()}`)
-      .join('\n');
+      .map(item => {
+        const imageUrl = item.product.images[0] || '';
+        return `📦 *${item.product.name}*\n   Size: ${item.size} | Qty: ${item.quantity}\n   Price: ₹${item.product.price.toLocaleString()} × ${item.quantity} = ₹${(item.product.price * item.quantity).toLocaleString()}\n   Image: ${imageUrl}`;
+      })
+      .join('\n\n');
     
     const message = encodeURIComponent(
-      `Hi! I would like to place an order:\n\n${itemsList}\n\nTotal: ₹${getCartTotal().toLocaleString()}`
+      `🛍️ *New Order Request*\n\n${itemsList}\n\n━━━━━━━━━━━━━━\n💰 *Total: ₹${getCartTotal().toLocaleString()}*`
     );
     window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank');
   };
@@ -174,17 +177,11 @@ const Cart: React.FC = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <Button
-                    onClick={() => navigate('/checkout')}
-                    className="btn-luxury w-full"
-                  >
-                    Proceed to Checkout
-                  </Button>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleWhatsAppOrder}
-                    className="btn-whatsapp w-full justify-center"
+                    className="btn-whatsapp w-full justify-center py-4"
                   >
                     <MessageCircle className="w-5 h-5" />
                     Order via WhatsApp

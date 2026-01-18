@@ -63,12 +63,15 @@ const ProductDetail: React.FC = () => {
   };
 
   const handleWhatsAppOrder = () => {
+    const imageUrl = product.images[0] || '';
     const message = encodeURIComponent(
-      `Hi! I would like to order:\n\n` +
-      `Product: ${product.name}\n` +
-      `Size: ${selectedSize || 'Not selected'}\n` +
-      `Quantity: ${quantity}\n` +
-      `Price: ₹${(product.price * quantity).toLocaleString()}`
+      `🛍️ *New Order Request*\n\n` +
+      `📦 *${product.name}*\n` +
+      `━━━━━━━━━━━━━━\n` +
+      `📏 Size: ${selectedSize || 'Not selected'}\n` +
+      `🔢 Quantity: ${quantity}\n` +
+      `💰 Price: ₹${product.price.toLocaleString()} × ${quantity} = *₹${(product.price * quantity).toLocaleString()}*\n\n` +
+      `🖼️ Product Image:\n${imageUrl}`
     );
     window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank');
   };

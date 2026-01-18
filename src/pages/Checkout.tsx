@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CreditCard, MessageCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, MessageCircle, CheckCircle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
@@ -69,16 +69,26 @@ const Checkout: React.FC = () => {
 
   const handleWhatsAppOrder = () => {
     const itemsList = cart
-      .map(item => `- ${item.product.name} (${item.size}) x ${item.quantity}`)
-      .join('\n');
+      .map(item => {
+        const imageUrl = item.product.images[0] || '';
+        return `📦 *${item.product.name}*\n   Size: ${item.size} | Qty: ${item.quantity}\n   Price: ₹${item.product.price.toLocaleString()} × ${item.quantity} = ₹${(item.product.price * item.quantity).toLocaleString()}\n   Image: ${imageUrl}`;
+      })
+      .join('\n\n');
+    
+    const fullAddress = formData.address 
+      ? `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`
+      : 'Not provided';
     
     const message = encodeURIComponent(
-      `Hi! I would like to place an order:\n\n` +
+      `🛍️ *New Order Request*\n\n` +
       `${itemsList}\n\n` +
+      `━━━━━━━━━━━━━━\n` +
+      `👤 *Customer Details*\n` +
       `Name: ${formData.name || 'Not provided'}\n` +
       `Phone: ${formData.phone || 'Not provided'}\n` +
-      `Address: ${formData.address || 'Not provided'}\n\n` +
-      `Total: ₹${getCartTotal().toLocaleString()}`
+      `Email: ${formData.email || 'Not provided'}\n` +
+      `Address: ${fullAddress}\n\n` +
+      `💰 *Total: ₹${getCartTotal().toLocaleString()}*`
     );
     window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank');
   };
@@ -251,36 +261,18 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Payment */}
+                {/* WhatsApp Order */}
                 <div className="bg-card rounded-2xl border border-border p-6">
-                  <h2 className="font-display text-xl font-bold mb-6">Payment Method</h2>
-                  <div className="space-y-4">
-                    <label className="flex items-center gap-4 p-4 border rounded-xl cursor-pointer hover:border-primary transition-colors bg-muted/50">
-                      <input type="radio" name="payment" value="online" defaultChecked className="w-4 h-4 text-primary" />
-                      <CreditCard className="w-6 h-6 text-primary" />
-                      <div>
-                        <p className="font-medium">Online Payment</p>
-                        <p className="text-sm text-muted-foreground">Pay securely online</p>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Submit */}
-                <div className="flex gap-4">
-                  <Button
-                    type="submit"
-                    className="btn-luxury flex-1"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? 'Processing...' : 'Place Order'}
-                  </Button>
+                  <h2 className="font-display text-xl font-bold mb-4">Complete Your Order</h2>
+                  <p className="text-muted-foreground mb-6">
+                    Fill in your details above and click the button below to place your order via WhatsApp.
+                  </p>
                   <motion.button
                     type="button"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleWhatsAppOrder}
-                    className="btn-whatsapp"
+                    className="btn-whatsapp w-full justify-center py-4"
                   >
                     <MessageCircle className="w-5 h-5" />
                     Order via WhatsApp

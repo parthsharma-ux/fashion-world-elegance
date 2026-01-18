@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import ProductCard from '@/components/ProductCard';
+import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -27,7 +28,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 const Shop: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const { products, categories } = useStore();
+  const { products, categories, isLoading } = useStore();
   const [priceRange, setPriceRange] = useState<number[]>([0, 5000]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     searchParams.get('category') ? [searchParams.get('category')!] : []
@@ -284,7 +285,17 @@ const Shop: React.FC = () => {
               </div>
 
               {/* Products Grid */}
-              {filteredProducts.length > 0 ? (
+              {isLoading ? (
+                <div className={`grid gap-6 ${
+                  gridCols === 3
+                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                }`}>
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <ProductCardSkeleton key={index} index={index} />
+                  ))}
+                </div>
+              ) : filteredProducts.length > 0 ? (
                 <div className={`grid gap-6 ${
                   gridCols === 3
                     ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'

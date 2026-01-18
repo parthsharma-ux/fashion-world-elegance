@@ -4,9 +4,10 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useStore } from '@/context/StoreContext';
 import ProductCard from '@/components/ProductCard';
+import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 
 const TrendingProducts: React.FC = () => {
-  const { products } = useStore();
+  const { products, isLoading } = useStore();
   const trendingProducts = products.filter(p => p.trending).slice(0, 4);
 
   return (
@@ -38,9 +39,16 @@ const TrendingProducts: React.FC = () => {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {trendingProducts.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
-          ))}
+          {isLoading ? (
+            // Skeleton loading state
+            Array.from({ length: 4 }).map((_, index) => (
+              <ProductCardSkeleton key={index} index={index} />
+            ))
+          ) : (
+            trendingProducts.map((product, index) => (
+              <ProductCard key={product.id} product={product} index={index} />
+            ))
+          )}
         </div>
       </div>
     </section>
