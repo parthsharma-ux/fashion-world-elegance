@@ -151,7 +151,7 @@ const Footer: React.FC = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-background/50 text-sm">
-              © 2024 Fashion World. All rights reserved.
+              © 2026 Fashion World. All rights reserved.
             </p>
             <div className="flex gap-6">
               <Link to="/privacy" className="text-background/50 text-sm hover:text-primary transition-colors">

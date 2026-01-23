@@ -164,7 +164,7 @@ const HeroSection: React.FC = () => {
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary/20 to-primary/10 backdrop-blur-md rounded-full border border-primary/30 text-white/90 text-sm mb-8"
             >
               <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-              <span className="font-medium">Premium Collection 2024</span>
+              <span className="font-medium">Premium Collection 2026</span>
             </motion.div>
 
             {/* Main Heading */}
