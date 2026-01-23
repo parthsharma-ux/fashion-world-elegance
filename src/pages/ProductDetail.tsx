@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ShoppingBag, MessageCircle, ChevronLeft, ChevronRight, Star, Truck, RotateCcw, Shield, Minus, Plus } from 'lucide-react';
+import { Heart, ShoppingBag, MessageCircle, ChevronLeft, ChevronRight, Star, Truck, Shield, Minus, Plus } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
@@ -320,18 +320,16 @@ const ProductDetail: React.FC = () => {
               </button>
 
               {/* Features */}
-              <div className="grid grid-cols-3 gap-4 pt-6 border-t">
+              <div className="grid grid-cols-2 gap-4 pt-6 border-t">
                 <div className="text-center">
                   <Truck className="w-6 h-6 mx-auto mb-2 text-primary" />
-                  <p className="text-sm">Free Shipping</p>
-                </div>
-                <div className="text-center">
-                  <RotateCcw className="w-6 h-6 mx-auto mb-2 text-primary" />
-                  <p className="text-sm">7-Day Returns</p>
+                  <p className="text-sm font-medium">Free Shipping</p>
+                  <p className="text-xs text-muted-foreground">Dispatch: 2-3 days</p>
                 </div>
                 <div className="text-center">
                   <Shield className="w-6 h-6 mx-auto mb-2 text-primary" />
-                  <p className="text-sm">Secure Payment</p>
+                  <p className="text-sm font-medium">Secure Payment</p>
+                  <p className="text-xs text-muted-foreground">Delivery: 5-7 days</p>
                 </div>
               </div>
 
