@@ -480,21 +480,41 @@ const AdminProducts: React.FC = () => {
                 </Select>
               </div>
 
-              <div>
-                <Label>Color</Label>
-                <Select
-                  value={formData.color}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, color: value }))}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select color" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {colors.map(color => (
-                      <SelectItem key={color} value={color}>{color}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="md:col-span-2">
+                <Label>Colors (select multiple)</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {colors.map(color => {
+                    const selectedColors = formData.color ? formData.color.split(', ') : [];
+                    const isSelected = selectedColors.includes(color);
+                    return (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => {
+                          let newColors: string[];
+                          if (isSelected) {
+                            newColors = selectedColors.filter(c => c !== color);
+                          } else {
+                            newColors = [...selectedColors, color];
+                          }
+                          setFormData(prev => ({ ...prev, color: newColors.join(', ') }));
+                        }}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                          isSelected
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-background border-border hover:border-primary'
+                        }`}
+                      >
+                        {color}
+                      </button>
+                    );
+                  })}
+                </div>
+                {formData.color && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Selected: {formData.color}
+                  </p>
+                )}
               </div>
 
               <div>
