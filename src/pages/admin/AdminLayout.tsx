@@ -14,7 +14,8 @@ import {
   Sun,
   ChevronRight,
   Loader2,
-  Layers
+  Layers,
+  Star
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -92,6 +93,7 @@ const AdminLayout: React.FC = () => {
     { href: '/admin/products', icon: Package, label: 'Products' },
     { href: '/admin/categories', icon: Layers, label: 'Categories' },
     { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
+    { href: '/admin/reviews', icon: Star, label: 'Reviews' },
     { href: '/admin/banners', icon: Image, label: 'Banners' },
     { href: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
