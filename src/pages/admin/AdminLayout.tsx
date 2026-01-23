@@ -13,7 +13,8 @@ import {
   Moon,
   Sun,
   ChevronRight,
-  Loader2
+  Loader2,
+  Layers
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -27,9 +28,10 @@ const AdminLayout: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
-      return document.documentElement.classList.contains('dark');
+      const stored = localStorage.getItem('theme');
+      return stored === 'dark' || document.documentElement.classList.contains('dark');
     }
-    return false;
+    return true;
   });
 
   useEffect(() => {
@@ -68,8 +70,10 @@ const AdminLayout: React.FC = () => {
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
   }, [isDark]);
 
@@ -86,6 +90,7 @@ const AdminLayout: React.FC = () => {
   const menuItems = [
     { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/admin/products', icon: Package, label: 'Products' },
+    { href: '/admin/categories', icon: Layers, label: 'Categories' },
     { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
     { href: '/admin/banners', icon: Image, label: 'Banners' },
     { href: '/admin/settings', icon: Settings, label: 'Settings' },

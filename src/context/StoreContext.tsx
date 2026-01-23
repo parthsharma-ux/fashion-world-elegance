@@ -44,14 +44,7 @@ const defaultSettings: SiteSettings = {
   facebookUrl: 'https://facebook.com/fashionworld',
 };
 
-const defaultCategories: Category[] = [
-  { id: '1', name: 'Daily Wear Kurtis', image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=400', description: 'Comfortable everyday elegance' },
-  { id: '2', name: 'Festive Kurtis', image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400', description: 'Celebrate in style' },
-  { id: '3', name: 'Office Wear Kurtis', image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400', description: 'Professional & graceful' },
-  { id: '4', name: 'Designer Kurtis', image: 'https://images.unsplash.com/photo-1583391733975-c7ed8ca3b0c8?w=400', description: 'Exclusive designs' },
-  { id: '5', name: 'Cotton Collection', image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400', description: 'Pure comfort' },
-  { id: '6', name: 'Silk Collection', image: 'https://images.unsplash.com/photo-1604502083953-462de452ee95?w=400', description: 'Luxurious feel' },
-];
+const defaultCategories: Category[] = [];
 
 const defaultProducts: Product[] = [
   {
@@ -183,9 +176,8 @@ const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>(defaultProducts);
+  const [categories, setCategories] = useState<Category[]>(defaultCategories);
   const [isLoading, setIsLoading] = useState(true);
-  
-  const [categories] = useState<Category[]>(defaultCategories);
   const [reviews] = useState<Review[]>(defaultReviews);
   
   const [orders, setOrders] = useState<Order[]>(() => {
@@ -247,9 +239,37 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     await fetchProductsFromDb();
   };
 
-  // Fetch products on mount
+  // Fetch categories from Supabase
+  const fetchCategoriesFromDb = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching categories:', error);
+        return;
+      }
+
+      if (data) {
+        const mappedCategories: Category[] = data.map(cat => ({
+          id: cat.id,
+          name: cat.name,
+          image: cat.image || '',
+          description: cat.description || '',
+        }));
+        setCategories(mappedCategories);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  // Fetch products and categories on mount
   useEffect(() => {
     fetchProductsFromDb();
+    fetchCategoriesFromDb();
   }, []);
 
   // Persist to localStorage
