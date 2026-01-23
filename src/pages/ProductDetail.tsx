@@ -339,12 +339,13 @@ const ProductDetail: React.FC = () => {
               {product.video && (
                 <div className="pt-8 border-t">
                   <h3 className="font-semibold mb-4">Product Video</h3>
-                  <div className="aspect-video rounded-xl overflow-hidden bg-muted">
+                  <div className="rounded-xl overflow-hidden bg-muted">
                     <video
                       src={product.video}
                       controls
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto max-h-[70vh] object-contain"
                       poster={product.images[0]}
+                      playsInline
                     />
                   </div>
                 </div>
