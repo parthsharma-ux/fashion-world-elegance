@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit2, Trash2, Search, Loader2, Image as ImageIcon, Upload } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Loader2, Image as ImageIcon, Upload, Video } from 'lucide-react';
 import DraggableImageGrid from '@/components/admin/DraggableImageGrid';
+import VideoUploader from '@/components/admin/VideoUploader';
 import { supabase } from '@/integrations/supabase/client';
 import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
@@ -626,14 +627,20 @@ const AdminProducts: React.FC = () => {
               </div>
 
               <div className="md:col-span-2">
-                <Label>Product Video URL (Optional)</Label>
+                <Label>Product Video (Optional)</Label>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Upload a video to showcase your product or enter a URL below
+                </p>
+                <VideoUploader
+                  videoUrl={formData.video}
+                  onVideoChange={(url) => setFormData(prev => ({ ...prev, video: url }))}
+                />
                 <Input
                   value={formData.video}
                   onChange={(e) => setFormData(prev => ({ ...prev, video: e.target.value }))}
-                  placeholder="https://example.com/video.mp4"
-                  className="mt-1"
+                  placeholder="Or paste video URL: https://example.com/video.mp4"
+                  className="mt-3"
                 />
-                <p className="text-xs text-muted-foreground mt-1">Add a video URL to showcase your product</p>
               </div>
 
               <div className="md:col-span-2 flex flex-wrap gap-6">
