@@ -23,7 +23,7 @@ const InstagramLookbook: React.FC = () => {
           className="text-center mb-12"
         >
           <span className="text-primary text-sm uppercase tracking-widest font-medium">
-            @fashionworld
+            @jaipuri_kurtis_manufacturer
           </span>
           <h2 className="font-display text-3xl md:text-5xl font-bold mt-4 mb-6">
             Shop the Look
@@ -38,7 +38,7 @@ const InstagramLookbook: React.FC = () => {
           {instagramPosts.map((post, index) => (
             <motion.a
               key={index}
-              href="https://instagram.com/fashionworld"
+              href="https://www.instagram.com/jaipuri_kurtis_manufacturer?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
               target="_blank"
               rel="noopener noreferrer"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -68,7 +68,7 @@ const InstagramLookbook: React.FC = () => {
           className="text-center mt-10"
         >
           <a
-            href="https://instagram.com/fashionworld"
+            href="https://www.instagram.com/jaipuri_kurtis_manufacturer?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-primary font-medium hover:gap-4 transition-all"
