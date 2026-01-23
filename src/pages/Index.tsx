@@ -7,7 +7,6 @@ import FeaturedCollections from '@/components/sections/FeaturedCollections';
 import TrendingProducts from '@/components/sections/TrendingProducts';
 import WhyFashionWorld from '@/components/sections/WhyFashionWorld';
 import CustomerReviews from '@/components/sections/CustomerReviews';
-import InstagramLookbook from '@/components/sections/InstagramLookbook';
 
 const Index: React.FC = () => {
   return (
@@ -19,7 +18,6 @@ const Index: React.FC = () => {
         <TrendingProducts />
         <WhyFashionWorld />
         <CustomerReviews />
-        <InstagramLookbook />
       </main>
       <Footer />
       <WhatsAppButton />

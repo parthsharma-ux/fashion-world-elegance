@@ -227,9 +227,9 @@ const ProductDetail: React.FC = () => {
                   <h3 className="font-semibold">Select Size</h3>
                   <button 
                     onClick={() => setShowSizeGuide(true)}
-                    className="text-sm text-primary hover:underline"
+                    className="text-sm text-primary hover:underline flex items-center gap-1"
                   >
-                    Size Guide
+                    📏 Size Guide
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-3">
@@ -237,16 +237,25 @@ const ProductDetail: React.FC = () => {
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`w-14 h-12 rounded-lg border-2 font-medium transition-all ${
+                      onDoubleClick={() => setShowSizeGuide(true)}
+                      className={`relative group w-14 h-12 rounded-lg border-2 font-medium transition-all ${
                         selectedSize === size
                           ? 'border-primary bg-primary text-primary-foreground'
                           : 'border-border hover:border-primary'
                       }`}
+                      title="Double-click for size guide"
                     >
                       {size}
+                      {/* Size guide hint on hover */}
+                      <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-foreground text-background text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                        Double-click for guide
+                      </span>
                     </button>
                   ))}
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  💡 Tip: Double-click any size or tap "Size Guide" for measurements
+                </p>
               </div>
 
               {/* Quantity */}
