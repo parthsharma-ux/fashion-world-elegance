@@ -40,8 +40,8 @@ const defaultSettings: SiteSettings = {
   email: 'contact@fashionworld.in',
   phone: '+91 6376327343',
   address: 'Jaipur, Rajasthan, India',
-  instagramUrl: 'https://instagram.com/fashionworld',
-  facebookUrl: 'https://facebook.com/fashionworld',
+  instagramUrl: 'https://www.instagram.com/jaipuri_kurtis_manufacturer?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==',
+  facebookUrl: 'https://www.facebook.com/share/17j8hW86Y9/',
 };
 
 const defaultCategories: Category[] = [];

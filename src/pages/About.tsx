@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Heart, Award, Truck, Shield } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import aboutImage from '@/assets/about-craftsmanship.jpg';
 
 const About: React.FC = () => {
   const features = [
@@ -67,7 +68,7 @@ const About: React.FC = () => {
               <div className="relative">
                 <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5">
                   <img
-                    src="https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=800&h=1000&fit=crop"
+                    src={aboutImage}
                     alt="Traditional Jaipuri Craftsmanship"
                     className="w-full h-full object-cover"
                   />

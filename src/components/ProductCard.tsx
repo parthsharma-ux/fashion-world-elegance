@@ -88,7 +88,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleAddToCart}
-                  className="w-full py-3 bg-white/95 backdrop-blur-sm rounded-full font-medium flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-colors shadow-lg"
+                  className="w-full py-3 bg-card text-card-foreground backdrop-blur-sm rounded-full font-medium flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-colors shadow-lg border border-border"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   Add to Cart
