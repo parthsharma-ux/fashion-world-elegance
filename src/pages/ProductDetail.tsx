@@ -5,6 +5,7 @@ import { Heart, ShoppingBag, MessageCircle, ChevronLeft, ChevronRight, Star, Tru
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
+import SizeGuide from '@/components/SizeGuide';
 import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +18,7 @@ const ProductDetail: React.FC = () => {
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
 
   const product = products.find(p => p.id === id);
   const inWishlist = product ? isInWishlist(product.id) : false;
@@ -223,7 +225,12 @@ const ProductDetail: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold">Select Size</h3>
-                  <button className="text-sm text-primary">Size Guide</button>
+                  <button 
+                    onClick={() => setShowSizeGuide(true)}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Size Guide
+                  </button>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {product.sizes.map(size => (
@@ -356,6 +363,7 @@ const ProductDetail: React.FC = () => {
 
       <Footer />
       <WhatsAppButton />
+      <SizeGuide open={showSizeGuide} onOpenChange={setShowSizeGuide} />
     </div>
   );
 };
