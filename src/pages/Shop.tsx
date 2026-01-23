@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Filter, SlidersHorizontal, Grid3X3, LayoutGrid, X, Rows3, Columns2 } from 'lucide-react';
+import { Filter, SlidersHorizontal, Grid3X3, LayoutGrid, X } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
@@ -37,7 +37,6 @@ const Shop: React.FC = () => {
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState('featured');
   const [gridCols, setGridCols] = useState(4);
-  const [mobileLayout, setMobileLayout] = useState<'grid' | 'list'>('grid');
 
   const fabrics = [...new Set(products.map(p => p.fabric))];
   const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
@@ -267,35 +266,17 @@ const Shop: React.FC = () => {
                     </SelectContent>
                   </Select>
 
-                  {/* Mobile Layout Toggle */}
-                  <div className="flex sm:hidden items-center gap-2 border rounded-lg p-1">
-                    <button
-                      onClick={() => setMobileLayout('grid')}
-                      className={`p-2 rounded transition-colors ${mobileLayout === 'grid' ? 'bg-primary text-primary-foreground' : ''}`}
-                      title="Side by side"
-                    >
-                      <Columns2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => setMobileLayout('list')}
-                      className={`p-2 rounded transition-colors ${mobileLayout === 'list' ? 'bg-primary text-primary-foreground' : ''}`}
-                      title="Single column"
-                    >
-                      <Rows3 className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Desktop Grid Toggle */}
+                  {/* Grid Toggle */}
                   <div className="hidden sm:flex items-center gap-2 border rounded-lg p-1">
                     <button
                       onClick={() => setGridCols(3)}
-                      className={`p-2 rounded transition-colors ${gridCols === 3 ? 'bg-primary text-primary-foreground' : ''}`}
+                      className={`p-2 rounded ${gridCols === 3 ? 'bg-primary text-primary-foreground' : ''}`}
                     >
                       <Grid3X3 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setGridCols(4)}
-                      className={`p-2 rounded transition-colors ${gridCols === 4 ? 'bg-primary text-primary-foreground' : ''}`}
+                      className={`p-2 rounded ${gridCols === 4 ? 'bg-primary text-primary-foreground' : ''}`}
                     >
                       <LayoutGrid className="w-4 h-4" />
                     </button>
@@ -305,24 +286,20 @@ const Shop: React.FC = () => {
 
               {/* Products Grid */}
               {isLoading ? (
-                <div className={`grid gap-4 ${
-                  mobileLayout === 'list' 
-                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-                    : gridCols === 3
-                      ? 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3'
-                      : 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                <div className={`grid gap-6 ${
+                  gridCols === 3
+                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
                 }`}>
                   {Array.from({ length: 8 }).map((_, index) => (
                     <ProductCardSkeleton key={index} index={index} />
                   ))}
                 </div>
               ) : filteredProducts.length > 0 ? (
-                <div className={`grid gap-4 ${
-                  mobileLayout === 'list' 
-                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-                    : gridCols === 3
-                      ? 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3'
-                      : 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                <div className={`grid gap-6 ${
+                  gridCols === 3
+                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
                 }`}>
                   {filteredProducts.map((product, index) => (
                     <ProductCard key={product.id} product={product} index={index} />

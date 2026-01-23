@@ -97,17 +97,16 @@ const ProductDetail: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
       <section className="pt-24 pb-20">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid lg:grid-cols-2 gap-12">
             {/* Image Gallery */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4 }}
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
               className="space-y-4"
             >
               <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-muted">
@@ -170,10 +169,9 @@ const ProductDetail: React.FC = () => {
 
             {/* Product Info */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="space-y-6 lg:space-y-8"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-8"
             >
               {/* Breadcrumb */}
               <p className="text-sm text-muted-foreground">
@@ -281,12 +279,12 @@ const ProductDetail: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex flex-wrap gap-4">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleAddToCart}
-                  className="w-full sm:flex-1 py-4 px-6 bg-foreground text-background rounded-full font-medium flex items-center justify-center gap-2 hover:bg-foreground/90 transition-colors"
+                  className="flex-1 min-w-[200px] py-4 px-6 bg-foreground text-background rounded-full font-medium flex items-center justify-center gap-2 hover:bg-foreground/90 transition-colors"
                 >
                   <ShoppingBag className="w-5 h-5" />
                   Add to Cart
@@ -295,7 +293,7 @@ const ProductDetail: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleBuyNow}
-                  className="btn-luxury w-full sm:flex-1 py-4"
+                  className="btn-luxury flex-1 min-w-[200px] py-4"
                 >
                   Buy Now
                 </motion.button>

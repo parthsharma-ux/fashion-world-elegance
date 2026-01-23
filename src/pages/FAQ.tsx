@@ -20,10 +20,6 @@ const FAQ: React.FC = () => {
       answer: 'Dispatch Time: 2-3 working days. All over India delivery within 5-7 working days. Metro cities usually receive orders faster. You will receive tracking information once your order is shipped.',
     },
     {
-      question: 'What is your return and exchange policy?',
-      answer: 'No returns & Exchange as we are already providing the real pic and all fabric details are mentioned in description. 360° Unboxing video is compulsory for solving any issues. This policy helps us maintain quality and transparency.',
-    },
-    {
       question: 'How do I choose the right size?',
       answer: 'We provide a detailed size guide on each product page. You can find measurements for bust, waist, hip, and length. If you are still unsure, message us on WhatsApp and we will help you find the perfect fit.',
     },
