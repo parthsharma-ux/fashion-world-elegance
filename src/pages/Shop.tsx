@@ -286,20 +286,20 @@ const Shop: React.FC = () => {
 
               {/* Products Grid */}
               {isLoading ? (
-                <div className={`grid gap-6 ${
+                <div className={`grid gap-4 ${
                   gridCols === 3
-                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                    ? 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3'
+                    : 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
                 }`}>
                   {Array.from({ length: 8 }).map((_, index) => (
                     <ProductCardSkeleton key={index} index={index} />
                   ))}
                 </div>
               ) : filteredProducts.length > 0 ? (
-                <div className={`grid gap-6 ${
+                <div className={`grid gap-4 ${
                   gridCols === 3
-                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                    ? 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3'
+                    : 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
                 }`}>
                   {filteredProducts.map((product, index) => (
                     <ProductCard key={product.id} product={product} index={index} />
