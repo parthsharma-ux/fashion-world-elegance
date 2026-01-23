@@ -97,16 +97,17 @@ const ProductDetail: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
 
-      <section className="pt-24 pb-20">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12">
+      <section className="pt-24 pb-20 overflow-x-hidden">
+        <div className="container mx-auto px-4 overflow-hidden">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Image Gallery */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
               className="space-y-4"
             >
               <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-muted">
@@ -169,9 +170,10 @@ const ProductDetail: React.FC = () => {
 
             {/* Product Info */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="space-y-6 md:space-y-8"
             >
               {/* Breadcrumb */}
               <p className="text-sm text-muted-foreground">
@@ -205,16 +207,16 @@ const ProductDetail: React.FC = () => {
               </div>
 
               {/* Price */}
-              <div className="flex items-baseline gap-4">
-                <span className="text-3xl font-bold text-primary">
+              <div className="flex flex-wrap items-baseline gap-2 sm:gap-4">
+                <span className="text-2xl sm:text-3xl font-bold text-primary">
                   ₹{product.price.toLocaleString()}
                 </span>
                 {product.originalPrice > product.price && (
                   <>
-                    <span className="text-xl text-muted-foreground line-through">
+                    <span className="text-lg sm:text-xl text-muted-foreground line-through">
                       ₹{product.originalPrice.toLocaleString()}
                     </span>
-                    <span className="text-sm font-semibold text-green-600">
+                    <span className="text-sm font-semibold text-accent">
                       Save ₹{(product.originalPrice - product.price).toLocaleString()}
                     </span>
                   </>
@@ -238,7 +240,7 @@ const ProductDetail: React.FC = () => {
                       key={size}
                       onClick={() => setSelectedSize(size)}
                       onDoubleClick={() => setShowSizeGuide(true)}
-                      className={`relative group w-14 h-12 rounded-lg border-2 font-medium transition-all ${
+                      className={`w-12 h-10 sm:w-14 sm:h-12 rounded-lg border-2 font-medium transition-all ${
                         selectedSize === size
                           ? 'border-primary bg-primary text-primary-foreground'
                           : 'border-border hover:border-primary'
@@ -246,10 +248,6 @@ const ProductDetail: React.FC = () => {
                       title="Double-click for size guide"
                     >
                       {size}
-                      {/* Size guide hint on hover */}
-                      <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-foreground text-background text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                        Double-click for guide
-                      </span>
                     </button>
                   ))}
                 </div>
@@ -279,12 +277,12 @@ const ProductDetail: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleAddToCart}
-                  className="flex-1 min-w-[200px] py-4 px-6 bg-foreground text-background rounded-full font-medium flex items-center justify-center gap-2 hover:bg-foreground/90 transition-colors"
+                  className="flex-1 py-4 px-6 bg-foreground text-background rounded-full font-medium flex items-center justify-center gap-2 hover:bg-foreground/90 transition-colors"
                 >
                   <ShoppingBag className="w-5 h-5" />
                   Add to Cart
@@ -293,7 +291,7 @@ const ProductDetail: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleBuyNow}
-                  className="btn-luxury flex-1 min-w-[200px] py-4"
+                  className="btn-luxury flex-1 py-4"
                 >
                   Buy Now
                 </motion.button>
