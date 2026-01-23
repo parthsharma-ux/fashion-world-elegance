@@ -281,12 +281,12 @@ const ProductDetail: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleAddToCart}
-                  className="flex-1 min-w-[200px] py-4 px-6 bg-foreground text-background rounded-full font-medium flex items-center justify-center gap-2 hover:bg-foreground/90 transition-colors"
+                  className="w-full sm:flex-1 py-4 px-6 bg-foreground text-background rounded-full font-medium flex items-center justify-center gap-2 hover:bg-foreground/90 transition-colors"
                 >
                   <ShoppingBag className="w-5 h-5" />
                   Add to Cart
@@ -295,7 +295,7 @@ const ProductDetail: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleBuyNow}
-                  className="btn-luxury flex-1 min-w-[200px] py-4"
+                  className="btn-luxury w-full sm:flex-1 py-4"
                 >
                   Buy Now
                 </motion.button>
