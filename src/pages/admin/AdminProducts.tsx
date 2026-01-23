@@ -84,7 +84,7 @@ const AdminProducts: React.FC = () => {
 
   const fabrics = ['Cotton', 'Rayon', 'Silk', 'Muslin', 'Chinnon', 'Georgette', 'Velvet', 'Chanderi', 'Fancy', 'Linen', 'Pure Cotton', 'Pure Silk'];
   const sizes = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Free Size'];
-  const colors = ['Red', 'Blue', 'Green', 'Yellow', 'Pink', 'Orange', 'Purple', 'Black', 'White', 'Maroon', 'Navy', 'Beige', 'Brown', 'Gold', 'Silver', 'Multi-Color'];
+  const colors = ['Red', 'Blue', 'Green', 'Yellow', 'Pink', 'Orange', 'Purple', 'Black', 'White', 'Off White', 'Maroon', 'Wine', 'Navy', 'Beige', 'Brown', 'Gold', 'Silver', 'Multi-Color'];
 
   useEffect(() => {
     fetchProducts();
