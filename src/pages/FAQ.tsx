@@ -20,8 +20,8 @@ const FAQ: React.FC = () => {
       answer: 'Delivery typically takes 5-7 business days across India. Metro cities usually receive orders within 3-5 days. You will receive tracking information once your order is shipped.',
     },
     {
-      question: 'What is your return policy?',
-      answer: 'We offer a 7-day return policy for unused products with original tags. Simply contact us via WhatsApp with your order details and we will guide you through the return process.',
+      question: 'What is your return and exchange policy?',
+      answer: 'We offer a 7-day return/exchange policy for unused products with original tags. IMPORTANT: An unboxing video is COMPULSORY for all return and exchange requests. Without a clear unboxing video showing the product condition upon delivery, we cannot process any returns or exchanges. This policy helps us ensure product authenticity and prevents misuse. Simply contact us via WhatsApp with your order details and unboxing video, and we will guide you through the process.',
     },
     {
       question: 'How do I choose the right size?',

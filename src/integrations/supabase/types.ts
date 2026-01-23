@@ -194,6 +194,36 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          avatar: string | null
+          comment: string
+          created_at: string
+          id: string
+          name: string
+          rating: number
+          updated_at: string
+        }
+        Insert: {
+          avatar?: string | null
+          comment: string
+          created_at?: string
+          id?: string
+          name: string
+          rating: number
+          updated_at?: string
+        }
+        Update: {
+          avatar?: string | null
+          comment?: string
+          created_at?: string
+          id?: string
+          name?: string
+          rating?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           address: string | null
