@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Truck, Shield, CreditCard, RotateCcw } from 'lucide-react';
+import { Truck, Shield, CreditCard, Clock } from 'lucide-react';
 
 const features = [
   {
@@ -14,14 +14,14 @@ const features = [
     description: 'Luxury ethnic wear at prices that won\'t break the bank',
   },
   {
-    icon: Truck,
-    title: 'Pan India Delivery',
-    description: 'Fast and reliable shipping to every corner of India',
+    icon: Clock,
+    title: 'Fast Dispatch',
+    description: 'Orders dispatched within 2-3 working days',
   },
   {
-    icon: RotateCcw,
-    title: 'Easy Returns',
-    description: '7-day hassle-free returns and exchanges',
+    icon: Truck,
+    title: 'Pan India Delivery',
+    description: 'All over India delivery within 5-7 working days',
   },
 ];
 

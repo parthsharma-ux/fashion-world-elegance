@@ -189,7 +189,7 @@ const Cart: React.FC = () => {
                 </div>
 
                 <p className="text-xs text-muted-foreground text-center mt-4">
-                  Secure checkout • Free returns
+                  Secure checkout • Dispatch in 2-3 days
                 </p>
               </div>
             </motion.div>
