@@ -39,6 +39,8 @@ interface Product {
   in_stock: boolean;
   featured: boolean;
   trending: boolean;
+  color?: string;
+  video?: string;
 }
 
 interface Category {
@@ -60,6 +62,8 @@ const emptyProduct = {
   in_stock: true,
   featured: false,
   trending: false,
+  color: '',
+  video: '',
 };
 
 const AdminProducts: React.FC = () => {
@@ -77,8 +81,9 @@ const AdminProducts: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const fabrics = ['Cotton', 'Silk', 'Rayon', 'Chanderi Silk', 'Velvet', 'Linen', 'Georgette', 'Pure Cotton', 'Pure Silk'];
-  const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+  const fabrics = ['Cotton', 'Rayon', 'Silk', 'Muslin', 'Chinnon', 'Georgette', 'Velvet', 'Chanderi', 'Fancy', 'Linen', 'Pure Cotton', 'Pure Silk'];
+  const sizes = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Free Size'];
+  const colors = ['Red', 'Blue', 'Green', 'Yellow', 'Pink', 'Orange', 'Purple', 'Black', 'White', 'Maroon', 'Navy', 'Beige', 'Brown', 'Gold', 'Silver', 'Multi-Color'];
 
   useEffect(() => {
     fetchProducts();
@@ -138,6 +143,8 @@ const AdminProducts: React.FC = () => {
       in_stock: product.in_stock,
       featured: product.featured,
       trending: product.trending,
+      color: product.color || '',
+      video: product.video || '',
     });
     setIsDialogOpen(true);
   };
@@ -234,6 +241,8 @@ const AdminProducts: React.FC = () => {
       in_stock: formData.in_stock,
       featured: formData.featured,
       trending: formData.trending,
+      color: formData.color || null,
+      video: formData.video || null,
     };
 
     try {
@@ -471,6 +480,23 @@ const AdminProducts: React.FC = () => {
               </div>
 
               <div>
+                <Label>Color</Label>
+                <Select
+                  value={formData.color}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, color: value }))}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select color" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {colors.map(color => (
+                      <SelectItem key={color} value={color}>{color}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
                 <Label>Selling Price (₹) *</Label>
                 <Input
                   type="number"
@@ -597,6 +623,17 @@ const AdminProducts: React.FC = () => {
                   placeholder="Dry clean only. Store in a cool, dry place."
                   className="mt-1"
                 />
+              </div>
+
+              <div className="md:col-span-2">
+                <Label>Product Video URL (Optional)</Label>
+                <Input
+                  value={formData.video}
+                  onChange={(e) => setFormData(prev => ({ ...prev, video: e.target.value }))}
+                  placeholder="https://example.com/video.mp4"
+                  className="mt-1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Add a video URL to showcase your product</p>
               </div>
 
               <div className="md:col-span-2 flex flex-wrap gap-6">

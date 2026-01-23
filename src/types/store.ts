@@ -13,6 +13,8 @@ export interface Product {
   inStock: boolean;
   featured: boolean;
   trending: boolean;
+  color?: string;
+  video?: string;
 }
 
 export interface CartItem {

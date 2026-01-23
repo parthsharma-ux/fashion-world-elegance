@@ -98,9 +98,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
 
             {/* Product Info */}
             <div className="p-5">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
-                {product.fabric}
-              </p>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                <span>{product.fabric}</span>
+                {product.color && (
+                  <>
+                    <span>•</span>
+                    <span>{product.color}</span>
+                  </>
+                )}
+              </div>
               <h3 className="font-display text-lg font-semibold mb-2 line-clamp-1 group-hover:text-primary transition-colors">
                 {product.name}
               </h3>

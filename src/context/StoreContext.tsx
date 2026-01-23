@@ -175,6 +175,8 @@ const mapDbProductToProduct = (dbProduct: any): Product => ({
   inStock: dbProduct.in_stock ?? true,
   featured: dbProduct.featured ?? false,
   trending: dbProduct.trending ?? false,
+  color: dbProduct.color || undefined,
+  video: dbProduct.video || undefined,
 });
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
