@@ -169,7 +169,7 @@ const ProductDetail: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
+              className="space-y-8"
             >
               {/* Breadcrumb */}
               <p className="text-sm text-muted-foreground">
@@ -177,11 +177,19 @@ const ProductDetail: React.FC = () => {
               </p>
 
               {/* Title & Price */}
-              <div>
-                <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">
+              <div className="space-y-2">
+                <h1 className="font-display text-3xl md:text-4xl font-bold">
                   {product.name}
                 </h1>
-                <p className="text-muted-foreground">{product.fabric}</p>
+                <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
+                  <span>{product.fabric}</span>
+                  {product.color && (
+                    <>
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground" />
+                      <span>{product.color}</span>
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Rating */}
@@ -311,17 +319,32 @@ const ProductDetail: React.FC = () => {
                 </div>
               </div>
 
+              {/* Product Video */}
+              {product.video && (
+                <div className="pt-8 border-t">
+                  <h3 className="font-semibold mb-4">Product Video</h3>
+                  <div className="aspect-video rounded-xl overflow-hidden bg-muted">
+                    <video
+                      src={product.video}
+                      controls
+                      className="w-full h-full object-cover"
+                      poster={product.images[0]}
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* Description */}
-              <div className="pt-6 border-t">
-                <h3 className="font-semibold mb-3">Description</h3>
-                <p className="text-muted-foreground leading-relaxed">
+              <div className="pt-8 border-t">
+                <h3 className="font-semibold mb-4">Description</h3>
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
                   {product.description}
                 </p>
               </div>
 
               {/* Care Instructions */}
-              <div className="pt-6 border-t">
-                <h3 className="font-semibold mb-3">Care Instructions</h3>
+              <div className="pt-8 border-t">
+                <h3 className="font-semibold mb-4">Care Instructions</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   {product.careInstructions}
                 </p>

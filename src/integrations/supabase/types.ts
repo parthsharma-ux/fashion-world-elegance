@@ -135,6 +135,7 @@ export type Database = {
         Row: {
           care_instructions: string | null
           category: string
+          color: string | null
           created_at: string
           description: string | null
           discount: number | null
@@ -149,10 +150,12 @@ export type Database = {
           sizes: string[]
           trending: boolean | null
           updated_at: string
+          video: string | null
         }
         Insert: {
           care_instructions?: string | null
           category: string
+          color?: string | null
           created_at?: string
           description?: string | null
           discount?: number | null
@@ -167,10 +170,12 @@ export type Database = {
           sizes?: string[]
           trending?: boolean | null
           updated_at?: string
+          video?: string | null
         }
         Update: {
           care_instructions?: string | null
           category?: string
+          color?: string | null
           created_at?: string
           description?: string | null
           discount?: number | null
@@ -185,6 +190,7 @@ export type Database = {
           sizes?: string[]
           trending?: boolean | null
           updated_at?: string
+          video?: string | null
         }
         Relationships: []
       }
