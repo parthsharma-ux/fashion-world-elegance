@@ -14,6 +14,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
 import ShippingInfo from "./pages/ShippingInfo";
+import ReturnsPolicy from "./pages/ReturnsPolicy";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -71,6 +72,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/shipping" element={<ShippingInfo />} />
+            <Route path="/returns" element={<ReturnsPolicy />} />
             <Route path="/categories" element={<Shop />} />
             <Route path="/wishlist" element={<Cart />} />
             <Route path="/admin/login" element={<AdminLogin />} />
