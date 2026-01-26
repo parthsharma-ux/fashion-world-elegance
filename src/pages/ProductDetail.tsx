@@ -16,6 +16,7 @@ const ProductDetail: React.FC = () => {
   const { products, addToCart, addToWishlist, removeFromWishlist, isInWishlist, settings } = useStore();
   const { toast } = useToast();
   const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
@@ -180,19 +181,13 @@ const ProductDetail: React.FC = () => {
                 Home / {product.category} / {product.name}
               </p>
 
-              {/* Title & Price */}
+              {/* Title */}
               <div className="space-y-2">
                 <h1 className="font-display text-3xl md:text-4xl font-bold break-words">
                   {product.name}
                 </h1>
                 <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
                   <span>{product.fabric}</span>
-                  {product.color && (
-                    <>
-                      <span className="w-1 h-1 rounded-full bg-muted-foreground" />
-                      <span>{product.color}</span>
-                    </>
-                  )}
                 </div>
               </div>
 
@@ -222,6 +217,33 @@ const ProductDetail: React.FC = () => {
                   </>
                 )}
               </div>
+
+              {/* Color Selection */}
+              {product.color && (
+                <div>
+                  <h3 className="font-semibold mb-3">Select Color</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {product.color.split(', ').map(color => (
+                      <button
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        className={`px-4 py-2 rounded-full border-2 font-medium transition-all ${
+                          selectedColor === color
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-border hover:border-primary'
+                        }`}
+                      >
+                        {color}
+                      </button>
+                    ))}
+                  </div>
+                  {selectedColor && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Selected: {selectedColor}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Size Selection */}
               <div>

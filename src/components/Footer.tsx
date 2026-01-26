@@ -18,6 +18,7 @@ const Footer: React.FC = () => {
 
   const customerService = [
     { href: '/shipping', label: 'Shipping Info' },
+    { href: '/returns', label: 'Returns Policy' },
     { href: '/faq', label: 'FAQ' },
     { href: '/size-guide', label: 'Size Guide' },
   ];
