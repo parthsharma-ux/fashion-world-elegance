@@ -13,7 +13,7 @@ const FAQ: React.FC = () => {
   const faqs = [
     {
       question: 'What payment methods do you accept?',
-      answer: 'We accept all major payment methods including UPI, debit cards, credit cards, net banking, and cash on delivery. You can also place orders via WhatsApp for a seamless experience.',
+      answer: 'We accept all major payment methods including UPI, debit cards, credit cards, and net banking. You can also place orders via WhatsApp for a seamless experience.',
     },
     {
       question: 'What is the dispatch time?',
