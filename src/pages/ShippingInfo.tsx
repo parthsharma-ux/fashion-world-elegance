@@ -74,7 +74,10 @@ const ShippingInfo: React.FC = () => {
               <div>
                 <h3 className="font-display text-xl font-semibold mb-2">No Returns & Exchange</h3>
                 <p className="text-muted-foreground">
-                  We do not accept returns or exchanges as we provide real product pictures and all fabric details are mentioned in the product description. What you see is what you get!
+                  We do not accept returns or exchanges as we are already providing the real pic and all fabric details are mentioned in description.
+                </p>
+                <p className="text-muted-foreground mt-2">
+                  <strong>Note:</strong> You can request for exchange within 24 hours by submitting a 360° unboxing video in case of any wrong parcel received.
                 </p>
               </div>
             </motion.div>
