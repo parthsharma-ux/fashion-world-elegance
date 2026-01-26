@@ -25,7 +25,7 @@ const FAQ: React.FC = () => {
     },
     {
       question: 'What is your return and exchange policy?',
-      answer: 'We do not accept returns or exchanges as we provide real product pictures and all fabric details are mentioned in the product description. What you see is what you get! A 360° unboxing video is compulsory for solving any issues related to your order.',
+      answer: 'No Returns & Exchange as we are already providing the real pic and all fabric details are mentioned in description. Note: You can request for exchange within 24 hours by submitting a 360° unboxing video in case of any wrong parcel received.',
     },
     {
       question: 'How do I choose the right size?',
