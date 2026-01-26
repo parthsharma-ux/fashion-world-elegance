@@ -111,7 +111,7 @@ const ProductDetail: React.FC = () => {
               transition={{ duration: 0.4 }}
               className="space-y-4 min-w-0"
             >
-              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-muted">
+              <div className="relative min-h-[400px] max-h-[600px] lg:max-h-[700px] rounded-2xl overflow-hidden bg-muted flex items-center justify-center">
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={currentImageIndex}
@@ -121,7 +121,7 @@ const ProductDetail: React.FC = () => {
                     transition={{ duration: 0.3 }}
                     src={product.images[currentImageIndex]}
                     alt={product.name}
-                    className="w-full h-full object-contain md:object-cover"
+                    className="max-w-full max-h-full object-contain"
                   />
                 </AnimatePresence>
 
@@ -162,7 +162,7 @@ const ProductDetail: React.FC = () => {
                         index === currentImageIndex ? 'border-primary' : 'border-transparent'
                       }`}
                     >
-                      <img src={image} alt="" className="w-full h-full object-cover" />
+                      <img src={image} alt="" className="w-full h-full object-contain bg-muted/30" />
                     </button>
                   ))}
                 </div>
@@ -299,7 +299,7 @@ const ProductDetail: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 w-full min-w-0">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}

@@ -43,11 +43,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
         <div className="card-3d">
           <div className="card-3d-inner relative overflow-hidden rounded-2xl bg-card shadow-lg">
             {/* Image Container */}
-            <div className="relative aspect-[3/4] overflow-hidden">
+            <div className="relative min-h-[280px] max-h-[400px] overflow-hidden bg-muted/50 flex items-center justify-center">
               <img
                 src={product.images[0]}
                 alt={product.name}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
               />
               
               {/* Overlay */}
