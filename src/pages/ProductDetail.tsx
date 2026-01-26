@@ -108,7 +108,7 @@ const ProductDetail: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4 }}
-              className="space-y-4"
+              className="space-y-4 min-w-0"
             >
               <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-muted">
                 <AnimatePresence mode="wait">
@@ -120,7 +120,7 @@ const ProductDetail: React.FC = () => {
                     transition={{ duration: 0.3 }}
                     src={product.images[currentImageIndex]}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain md:object-cover"
                   />
                 </AnimatePresence>
 
@@ -173,16 +173,16 @@ const ProductDetail: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="space-y-6 md:space-y-8"
+              className="space-y-6 md:space-y-8 min-w-0"
             >
               {/* Breadcrumb */}
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground truncate max-w-full">
                 Home / {product.category} / {product.name}
               </p>
 
               {/* Title & Price */}
               <div className="space-y-2">
-                <h1 className="font-display text-3xl md:text-4xl font-bold">
+                <h1 className="font-display text-3xl md:text-4xl font-bold break-words">
                   {product.name}
                 </h1>
                 <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
@@ -350,7 +350,7 @@ const ProductDetail: React.FC = () => {
               {/* Description */}
               <div className="pt-8 border-t">
                 <h3 className="font-semibold mb-4">Description</h3>
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-line break-words">
                   {product.description}
                 </p>
               </div>
@@ -358,7 +358,7 @@ const ProductDetail: React.FC = () => {
               {/* Care Instructions */}
               <div className="pt-8 border-t">
                 <h3 className="font-semibold mb-4">Care Instructions</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed break-words">
                   {product.careInstructions}
                 </p>
               </div>
