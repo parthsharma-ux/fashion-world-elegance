@@ -16,8 +16,16 @@ const FAQ: React.FC = () => {
       answer: 'We accept all major payment methods including UPI, debit cards, credit cards, net banking, and cash on delivery. You can also place orders via WhatsApp for a seamless experience.',
     },
     {
+      question: 'What is the dispatch time?',
+      answer: 'All orders are dispatched within 2-3 working days after order confirmation.',
+    },
+    {
       question: 'How long does delivery take?',
-      answer: 'Dispatch Time: 2-3 working days. All over India delivery within 5-7 working days. Metro cities usually receive orders faster. You will receive tracking information once your order is shipped.',
+      answer: 'All over India delivery within 5-7 working days. Metro cities usually receive orders faster. You will receive tracking information once your order is shipped.',
+    },
+    {
+      question: 'What is your return and exchange policy?',
+      answer: 'We do not accept returns or exchanges as we provide real product pictures and all fabric details are mentioned in the product description. What you see is what you get! A 360° unboxing video is compulsory for solving any issues related to your order.',
     },
     {
       question: 'How do I choose the right size?',
